@@ -1,0 +1,47 @@
+name: Build and deploy resume
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build PDF
+        uses: xu-cheng/texlive-action@v2
+        with:
+          scheme: full
+          run: |
+            pdflatex -interaction=nonstopmode main.tex
+            pdflatex -interaction=nonstopmode main.tex
+
+      - name: Prepare for Pages
+        run: |
+          mkdir -p deploy
+          cp main.pdf deploy/
+          echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Resume</title><meta http-equiv="refresh" content="0;url=main.pdf"></head><body><p><a href="main.pdf">View resume (PDF)</a></p></body></html>' > deploy/index.html
+
+      - name: Upload to Pages
+        uses: actions/upload-pages-artifact@3
+        with:
+          path: deploy
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pages
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@4
