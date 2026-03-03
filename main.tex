@@ -1,104 +1,134 @@
-\documentclass[11pt,letterpaper]{article}
+% Maximum information density, 10pt, tight everything, guaranteed 1 page
+\documentclass[10pt,letterpaper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage[default]{sourcesanspro}
 \usepackage{geometry}
 \usepackage{enumitem}
 \usepackage{titlesec}
 \usepackage{hyperref}
-\usepackage{parskip}
+\usepackage{xcolor}
+\usepackage{multicol}
+\usepackage{fontawesome5}
 
-\geometry{margin=0.75in}
-\setlength{\parskip}{0.3em}
+\geometry{margin=0.4in, top=0.35in, bottom=0.35in}
 \pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
 
-% Section formatting
-\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}[\titlerule]
-\titlespacing*{\section}{0pt}{1em}{0.4em}
+\definecolor{accent}{HTML}{333333}
+\definecolor{rule}{HTML}{AAAAAA}
+\definecolor{RULE}{HTML}{AAAAAA}  % uppercase alias (titlesec/\uppercase can expand this)
+\definecolor{light}{HTML}{666666}
 
-% Compact lists
-\setlist{left=0pt, itemsep=2pt, topsep=2pt, partopsep=0pt}
+\hypersetup{colorlinks=true, urlcolor=accent}
 
-\newcommand{\resumeDate}[1]{\hfill \textit{#1}}
-\newcommand{\resumeLocation}[1]{\textit{#1}}
+\titleformat{\section}{\normalsize\bfseries\color{accent}\uppercase}{}{0pt}{}[\vspace{0pt}{\color{rule}\hrule height 0.5pt}]
+\titlespacing*{\section}{0pt}{6pt}{3pt}
+
+\setlist{left=0pt, itemsep=0pt, topsep=1pt, partopsep=0pt, parsep=0pt}
+
+\newcommand{\entry}[4]{%
+  {\small\bfseries #1} \hfill {\footnotesize\color{light}#2} \\[-1pt]
+  {\footnotesize\itshape #3 \hfill #4} \\[-4pt]
+}
 
 \begin{document}
 
+% ---- HEADER ----
 \begin{center}
-  {\LARGE \textbf{Omar Hyjek}} \\[0.25em]
-  \textbf{Senior Software Engineer} \quad $|$ \quad Detroit, Michigan, United States \\[0.5em]
-  10 Witherell Street \quad $|$ \quad
-  313\,491\,9726 \quad $|$ \quad
-  \href{mailto:ohyjek@gmail.com}{ohyjek@gmail.com} \quad $|$ \quad
-  \href{https://www.linkedin.com/in/hyjeko}{linkedin.com/in/hyjeko}
+  {\Large\bfseries Omar Hyjek} \\[2pt]
+  {\footnotesize\color{light}
+    \faIcon{map-marker-alt}\enspace Detroit, MI \enspace\textbar\enspace
+    \faIcon{phone}\enspace 313\,491\,9726 \enspace\textbar\enspace
+    \faIcon{envelope}\enspace \href{mailto:ohyjek@gmail.com}{ohyjek@gmail.com} \enspace\textbar\enspace
+    \faLinkedin\enspace \href{https://www.linkedin.com/in/hyjeko}{linkedin.com/in/hyjeko} \enspace\textbar\enspace
+    \faGithub\enspace \href{https://github.com/ohyjek}{github.com/ohyjek}
+  }
 \end{center}
-\vspace{-0.5em}
 
+\vspace{-4pt}
+
+% ---- SUMMARY ----
 \section*{Summary}
-Senior software developer with over 10 years of experience in software development and delivery. Specialized in full-stack development with expertise in TypeScript and React.
+{\small Senior frontend engineer with 10+ years of professional experience building consumer-facing web applications at scale. Currently contributing to micro-frontend architecture at Care.com.}
 
+% ---- SKILLS (up top for scannability) ----
+\section*{Skills}
+\vspace{-2pt}
+\begin{multicols}{2}
+{\footnotesize
+\textbf{Frontend:} TypeScript, JavaScript, React/Preact, Next.js, SolidJS, Apollo Client, GraphQL, Redux, RTK Query, MUI, Emotion, Tailwind, Storybook
+
+\textbf{Backend:} Node.js, Fastify, GraphQL, Docker, Kubernetes, PostgreSQL, nginx
+
+\columnbreak
+
+\textbf{Tools:} JIRA, Jenkins, pnpm, Turborepo, Vite, Webpack, LaunchDarkly, Sentry, Amplitude, Datadog, Figma, Cursor, Jest, Playwright, Corepack
+
+\textbf{Architecture:} Micro-frontends, monorepos, feature flag development, test-driven development, legacy modernization
+}
+\end{multicols}
+
+\vspace{-6pt}
+
+% ---- EXPERIENCE ----
 \section*{Experience}
 
-\textbf{Care.com} \resumeDate{May 2025 -- Present (10 months)} \\
-\textit{Senior Software Engineer} \quad \resumeLocation{United States}
-
-\vspace{0.5em}
-
-\textbf{RIIS LLC} \resumeDate{March 2024 -- April 2025 (1 year 2 months)} \\
-\textit{Senior Software Engineer} \quad \resumeLocation{Detroit, Michigan, United States}
+\entry{Care.com}{May 2025 -- Present}{Senior Software Engineer}{United States}
 \begin{itemize}[nosep]
-  \item Flock Safety/Aerodome: Contributed to a frontend DFR (Drone as First Responder) platform to improve public safety.
-  \item AcreConnect: Agriculture drone spray operator platform. Enhanced API fetching layer with type parameters for more confident reasoning about data fetching interfaces.
-  \item WebRTC; TypeScript, TSX, Node, SSR, web workers, service workers, SSO, CSS.
-  \item pnpm, React, Turborepo, Next.js, Vite, Comlink, Redux, mitt, ESLint, Tailwind, Storybook.
-  \item PostgreSQL, pgAdmin, Just, Docker; Tailscale, Notion, Jira, Figma, Slack, 1Password.
+  \item {\small Led a dependency audit and upgrade initiative across micro-frontends (developed and presented the plan to our organization), helping to address version drift and inconsistent dependency usage patterns.}
+  \item {\small Dramatically improved Sentry quota usage rates by implementing custom client-side filtering for the onSend event in the Sentry SDK.}
+  \item {\small Owned frontend implementation of the Seeker Hiring Hub feature; scoped the work alongside design, wrote the development plan and JIRA tickets. Implemented alongside another engineer.}
+  \item {\small Regularly picked up iOS (Swift/SwiftUI) bug fixes outside core frontend responsibilities to unblock the mobile team.}
+  \item {\small Reduced team bug count from 70+ to 0 in 6 months.}
+  \item {\small Collaborated with product to understand and define Amplitude metrics and events for the Seeker Hiring Hub feature.}
+  \item {\small Used feature flag-driven development with LaunchDarkly to enable safe rollouts and A/B experimentation at scale.}
+  \item {\small Worked across 7+ Next.js/TypeScript/Apollo micro-frontends; built and maintained features across Care.com's consumer marketplace.}
+  \item {\small Adapted to using new AI tooling like Cursor and Claude to improve my workflow and productivity. JIRA MCP is a game changer.}
 \end{itemize}
 
-\textbf{RIVET Work} \resumeDate{March 2023 -- March 2024 (1 year 1 month)} \\
-\textit{Senior Software Engineer 4} \quad \resumeLocation{Detroit, Michigan, United States}
+\vspace{2pt}
+\entry{RIIS LLC}{Mar 2024 -- Apr 2025}{Senior Software Engineer}{Detroit, MI}
 \begin{itemize}[nosep]
-  \item Migrated legacy React codebase from Create React App to Vite; improved build times by 10$\times$.
-  \item Implemented RTK Query; published common package to improve developer experience.
-  \item Wrote GitHub Actions to automate CI; collaborated in Figma to implement designs.
-  \item Documented best practices and implementation guides for common frontend problems.
+  \item {\small Built the WebRTC video/audio feed for Flock Safety's drone dock UI; worked with the principal engineer on state management, picked mitt for pub/sub to handle high message throughput.}
+  \item {\small AcreConnect: Enhanced API fetching layer with type parameters for more confident reasoning about data fetching interfaces.}
 \end{itemize}
 
-\textbf{Airspace Link, Inc.} \resumeDate{August 2022 -- February 2023 (7 months)} \\
-\textit{Software Engineer} \quad \resumeLocation{Detroit, Michigan, United States}
+\vspace{2pt}
+\entry{RIVET Work}{Mar 2023 -- Mar 2024}{Senior Software Engineer 4}{Detroit, MI}
 \begin{itemize}[nosep]
-  \item Contributed to launch of Airhub Portal.
-  \item TypeScript, Preact, SASS, Node, Yarn, Git, VS Code, Teams; GeoJSON, ArcGIS (JavaScript), Esri.
+  \item {\small Migrated legacy React codebase from Create React App to Vite; improved build times by 10$\times$.}
+  \item {\small Implemented RTK Query in order to demonstrate separation of concerns between state management and data fetching.}
+  \item {\small Advocated for modern package tooling like pnpm in order to improve build times and reduce bundle size.}
+  \item {\small Regularly gave constructive feedback on code reviews and provided guidance on best practices for React and web development.}
 \end{itemize}
 
-\textbf{Detroit Labs} \resumeDate{March 2016 -- August 2022 (6 years 6 months)} \\
-\textit{Senior Software Developer} \quad \resumeLocation{Detroit, Michigan}
+\vspace{2pt}
+\entry{Airspace Link, Inc.}{Aug 2022 -- Feb 2023}{Software Engineer}{Detroit, MI}
 \begin{itemize}[nosep]
-  \item Shipped over 5 successful projects; led a successful frontend team from initial scope to production.
-  \item Quickly ramped up on iOS to widen skillset; presented internal talks on technical and non-technical topics.
-  \item Passionate about fostering healthy team environments and delivering the best software possible.
+  \item {\small Contributed to the launch of Airhub Portal; built interactive map layers with Preact and ArcGIS for drone airspace management.}
 \end{itemize}
 
-\textbf{Compuware} \resumeDate{February 2015 -- March 2016 (1 year 2 months)} \\
-\textit{Software Developer} \quad \resumeLocation{Detroit}
+\vspace{2pt}
+\entry{Detroit Labs}{Mar 2016 -- Aug 2022}{Senior Software Developer}{Detroit, MI}
 \begin{itemize}[nosep]
-  \item Entry-level full-stack web application development.
-  \item Database: Apache Derby, Microsoft SQL Server, Oracle, IBM DB2. Platform: Maven (OSGi/Equinox), Eclipse BIRT, Java 1.7/1.8, Jetty 8, JUnit 4, SonarQube. Front end: Ajax, CSS, JavaScript, JSP, jQuery, Mustache.
+  \item {\small Helped ship over 5 client projects (Lineage, Rocket, Autospot, Driveway, and more).}
+  \item {\small Led a frontend team on Autospot from initial scope to production. Involved in all aspects of frontend architecture and development.}
+  \item {\small Often engaged with work outside of my core frontend responsibilities in order to broaden my skillset and help our team.}
+  \item {\small Gave internal talks on React and web patterns like demystifying useEffect and useCallback, when to use React Context and when to use Redux, and what is transpiling for, anyway?}
+  \item {\small Mentored junior developers by reviewing code and providing feedback and support on their projects.}
 \end{itemize}
 
-\textbf{Dickinson College} \resumeDate{January 2013 -- May 2013 (5 months)} \\
-\textit{Teaching Assistant} \quad \resumeLocation{Carlisle, PA}
+\vspace{2pt}
+\entry{Compuware}{Feb 2015 -- Mar 2016}{Software Developer}{Detroit, MI}
 \begin{itemize}[nosep]
-  \item Teaching Assistant for Data Structures: assisted students during lab hours; maintained weekly TA sessions.
+  \item {\small Entry-level full-stack web application development.}
 \end{itemize}
 
+% ---- EDUCATION ----
 \section*{Education}
-
-\textbf{Dickinson College} \resumeDate{2010 -- 2014} \\
-Bachelor of Science (BS), Computer Science \quad $|$ \quad Bachelor of Science (BS), Mathematics
-
-\section*{Skills \& Technologies}
-
-\textbf{Top skills:} WebRTC, Computer Science, Web Applications
-
-PostgreSQL / relational SQL; MongoDB / NoSQL; OpenAPI, SwaggerHub, Postman; Reactive Spring Boot, Kotlin, Java; React, SolidJS; Node, Webpack, Parcel, esbuild, nginx; JavaScript, TypeScript, CSS; Docker, shell, Kubernetes, Datadog, Lens; Git, Azure DevOps; Slack, Microsoft Teams; iOS, Swift, SwiftUI; Charles Proxy, Proxyman.
+{\small\textbf{Dickinson College} \hfill {\color{light}2010 -- 2014}} \\
+{\small BS Computer Science \enspace\textbar\enspace BS Mathematics}
 
 \end{document}
