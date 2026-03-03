@@ -34,7 +34,7 @@ jobs:
           echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Resume</title><meta http-equiv="refresh" content="0;url=main.pdf"></head><body><p><a href="main.pdf">View resume (PDF)</a></p></body></html>' > deploy/index.html
 
       - name: Upload to Pages
-        uses: actions/upload-pages-artifact@3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: deploy
 
@@ -44,4 +44,4 @@ jobs:
     environment: pages
     steps:
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@4
+        uses: actions/deploy-pages@v4
