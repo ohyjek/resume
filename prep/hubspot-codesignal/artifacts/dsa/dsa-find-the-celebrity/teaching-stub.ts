@@ -8,12 +8,8 @@
  * Replace placeholder types with concrete ones from the prompt.
  */
 
-export type KnowsFn = (a: number, b: number) => boolean;
-export type FindTheCelebrityInput = {
-  n: number;
-  knows: KnowsFn;
-};
-export type FindTheCelebrityOutput = number;
+export type FindTheCelebrityInput = unknown;
+export type FindTheCelebrityOutput = unknown;
 
 /**
  * Learning goals
@@ -22,34 +18,30 @@ export type FindTheCelebrityOutput = number;
  * 3) Explain complexity and edge-case behavior confidently.
  */
 export function findTheCelebrity(input: FindTheCelebrityInput): FindTheCelebrityOutput {
-  const { n, knows } = input;
-  if (n <= 0) return -1;
+  // Step 1: Restate assumptions and normalize input if needed.
+  // TODO: Document constraints and invalid-input behavior.
 
-  // Elimination phase: keep only one plausible celebrity candidate.
-  let candidate = 0;
-  for (let person = 1; person < n; person += 1) {
-    if (knows(candidate, person)) {
-      candidate = person;
-    }
-  }
+  // Step 2: Initialize structures for the chosen pattern.
+  // TODO: Explain why each structure is required.
 
-  // Verification phase: candidate must know nobody and be known by everybody.
-  for (let person = 0; person < n; person += 1) {
-    if (person === candidate) continue;
-    if (knows(candidate, person) || !knows(person, candidate)) {
-      return -1;
-    }
-  }
+  // Step 3: Implement core loop/recursion.
+  // TODO: Keep the main invariant true after each iteration.
 
-  return candidate;
+  // Step 4: Handle edge cases explicitly.
+  // TODO: Cover empty input, tiny input, duplicates, and bounds.
+
+  // Step 5: Return in the exact expected format.
+  // TODO: Verify output semantics against prompt examples.
+
+  throw new Error("Not implemented.");
 }
 
 /**
  * Suggested tests
- * - n = 0 returns -1
- * - n = 1 returns 0
- * - Valid celebrity exists and is returned
- * - No celebrity exists due to candidate knowing someone
- * - No celebrity exists due to someone not knowing candidate
+ * - Canonical sample case
+ * - Smallest valid input
+ * - Duplicate-heavy case
+ * - Constraint-limit case
+ * - Tricky edge case discussed in reasoning.md
  */
 

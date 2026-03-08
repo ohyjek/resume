@@ -1,15 +1,15 @@
 /**
  * Teaching Stub (DSA)
  *
- * Problem: Find the Celebrity
+ * Problem: Find the K-Sum of an Array
  * Category: DSA
  *
  * This scaffold is intentionally problem-specific.
  * Replace placeholder types with concrete ones from the prompt.
  */
 
-export type FindTheCelebrityInput = unknown;
-export type FindTheCelebrityOutput = unknown;
+export type FindTheKSumOfAnArrayInput = unknown;
+export type FindTheKSumOfAnArrayOutput = unknown;
 
 /**
  * Learning goals
@@ -17,7 +17,7 @@ export type FindTheCelebrityOutput = unknown;
  * 2) Maintain the right invariant while iterating or recursing.
  * 3) Explain complexity and edge-case behavior confidently.
  */
-export function findTheCelebrity(input: FindTheCelebrityInput): FindTheCelebrityOutput {
+export function findTheKSumOfAnArray(input: FindTheKSumOfAnArrayInput): FindTheKSumOfAnArrayOutput {
   // Step 1: Restate assumptions and normalize input if needed.
   // TODO: Document constraints and invalid-input behavior.
 

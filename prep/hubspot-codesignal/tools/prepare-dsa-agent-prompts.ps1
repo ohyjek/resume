@@ -1,6 +1,7 @@
 param(
   [string]$ProblemsRoot = "prep/hubspot-codesignal/problems/dsa",
   [string]$ArtifactsRoot = "prep/hubspot-codesignal/artifacts/dsa",
+  [string]$ImplementationsRoot = "prep/hubspot-codesignal/implementations/dsa",
   [string]$SolutionTemplate = "prep/hubspot-codesignal/templates/problem-solution.md",
   [string]$ReasoningTemplate = "prep/hubspot-codesignal/templates/problem-reasoning.md",
   [string]$DsaStubTemplate = "prep/hubspot-codesignal/templates/problem-teaching-stub-dsa.ts",
@@ -79,8 +80,51 @@ function Get-ProblemMeta {
   }
 }
 
+function Get-RenderedSolutionTemplate {
+  param(
+    [string]$TemplateContent,
+    [string]$ProblemTitle,
+    [string]$ProblemDifficulty,
+    [string]$ProblemRelPath,
+    [string]$LastUpdatedValue
+  )
+  $solution = $TemplateContent
+  $solution = $solution -replace "Problem title:", "Problem title: $ProblemTitle"
+  $solution = $solution -replace "Category:", "Category: DSA"
+  $solution = $solution -replace "Source file:", "Source file: $ProblemRelPath"
+  $solution = $solution -replace "Difficulty:", "Difficulty: $ProblemDifficulty"
+  $solution = $solution -replace "Last-updated:", "Last-updated: $LastUpdatedValue"
+  return $solution
+}
+
+function Normalize-SolutionForComparison {
+  param([string]$Content)
+  if ($null -eq $Content) { return "" }
+  $normalized = $Content -replace "`r`n", "`n"
+  $normalized = $normalized -replace "`r", "`n"
+  # Ignore date differences so prior template-only runs are treated as untouched.
+  $normalized = $normalized -replace '(?m)^- Last-updated:\s*.*$', "- Last-updated:"
+  return $normalized.Trim()
+}
+
+function Confirm-CleanResetForProblem {
+  param([string]$Slug)
+  while ($true) {
+    $response = Read-Host "Detected non-template solution for '$Slug'. Reset artifacts + implementation? (y/N)"
+    if (-not $response) { return $false }
+    switch ($response.Trim().ToLowerInvariant()) {
+      "y" { return $true }
+      "yes" { return $true }
+      "n" { return $false }
+      "no" { return $false }
+      default { Write-Host "Please enter y or n." }
+    }
+  }
+}
+
 $problemsRootFull = Resolve-RepoPath $ProblemsRoot
 $artifactsRootFull = Resolve-RepoPath $ArtifactsRoot
+$implementationsRootFull = Resolve-RepoPath $ImplementationsRoot
 $solutionTemplateFull = Resolve-RepoPath $SolutionTemplate
 $reasoningTemplateFull = Resolve-RepoPath $ReasoningTemplate
 $dsaStubTemplateFull = Resolve-RepoPath $DsaStubTemplate
@@ -99,6 +143,9 @@ if (-not (Test-Path $dsaStubTemplateFull)) {
   throw "Missing template: $dsaStubTemplateFull"
 }
 
+$null = New-Item -ItemType Directory -Path $artifactsRootFull -Force
+$null = New-Item -ItemType Directory -Path $implementationsRootFull -Force
+
 $problemFiles = @(Get-ChildItem -Path $problemsRootFull -File -Filter "*.md" | Sort-Object Name)
 if (@($problemFiles).Count -eq 0) {
   Write-Host "No DSA problem files found under: $problemsRootFull"
@@ -106,6 +153,12 @@ if (@($problemFiles).Count -eq 0) {
 }
 
 $updatedPrompts = @()
+$resetArtifactsCount = 0
+$preservedArtifactsCount = 0
+$resetImplementationsCount = 0
+$solutionTemplateContent = Get-Content -Path $solutionTemplateFull -Raw
+$reasoningTemplateContent = Get-Content -Path $reasoningTemplateFull -Raw
+$stubTemplateContent = Get-Content -Path $dsaStubTemplateFull -Raw
 
 foreach ($problemFile in $problemFiles) {
   $slug = [System.IO.Path]::GetFileNameWithoutExtension($problemFile.Name)
@@ -113,11 +166,9 @@ foreach ($problemFile in $problemFiles) {
   $problemRelPath = "prep/hubspot-codesignal/problems/dsa/$($problemFile.Name)"
   $artifactRelPath = "prep/hubspot-codesignal/artifacts/dsa/$slug"
   $artifactDir = Join-Path $artifactsRootFull $slug
+  $implementationPath = Join-Path $implementationsRootFull "$slug.ts"
 
   $null = New-Item -ItemType Directory -Path $artifactDir -Force
-  if (-not $NoClean) {
-    Get-ChildItem -Path $artifactDir -Force | Remove-Item -Recurse -Force
-  }
 
   $solutionPath = Join-Path $artifactDir "solution.md"
   $reasoningPath = Join-Path $artifactDir "reasoning.md"
@@ -125,30 +176,61 @@ foreach ($problemFile in $problemFiles) {
   $promptPath = Join-Path $artifactDir "agent-prompt.md"
 
   $lastUpdated = Get-Date -Format "yyyy-MM-dd"
+  $shouldResetArtifacts = -not $NoClean
 
-  $solution = Get-Content -Path $solutionTemplateFull -Raw
-  $solution = $solution -replace "Problem title:", "Problem title: $($meta.Title)"
-  $solution = $solution -replace "Category:", "Category: DSA"
-  $solution = $solution -replace "Source file:", "Source file: $problemRelPath"
-  $solution = $solution -replace "Difficulty:", "Difficulty: $($meta.Difficulty)"
-  $solution = $solution -replace "Last-updated:", "Last-updated: $lastUpdated"
-  Set-Content -Path $solutionPath -Value $solution
+  if ($shouldResetArtifacts -and (Test-Path $solutionPath)) {
+    $existingSolution = Get-Content -Path $solutionPath -Raw
+    $expectedTemplate = Get-RenderedSolutionTemplate `
+      -TemplateContent $solutionTemplateContent `
+      -ProblemTitle $meta.Title `
+      -ProblemDifficulty $meta.Difficulty `
+      -ProblemRelPath $problemRelPath `
+      -LastUpdatedValue $lastUpdated
 
-  $reasoning = Get-Content -Path $reasoningTemplateFull -Raw
-  $reasoning = $reasoning -replace "Problem title:", "Problem title: $($meta.Title)"
-  $reasoning = $reasoning -replace "Category:", "Category: DSA"
-  $reasoning = $reasoning -replace "Source file:", "Source file: $problemRelPath"
-  $reasoning = $reasoning -replace "Last-updated:", "Last-updated: $lastUpdated"
-  Set-Content -Path $reasoningPath -Value $reasoning
+    $existingNormalized = Normalize-SolutionForComparison -Content $existingSolution
+    $expectedNormalized = Normalize-SolutionForComparison -Content $expectedTemplate
 
-  $functionName = ConvertTo-FunctionName -Slug $slug
-  $functionNamePascal = ConvertTo-PascalCase -Name $functionName
-  $stub = Get-Content -Path $dsaStubTemplateFull -Raw
-  $stub = $stub.Replace("<PROBLEM_TITLE>", $meta.Title)
-  $stub = $stub.Replace("<CATEGORY>", "DSA")
-  $stub = $stub.Replace("<FUNCTION_NAME>", $functionName)
-  $stub = $stub.Replace("<FUNCTION_NAME_PASCAL>", $functionNamePascal)
-  Set-Content -Path $stubPath -Value $stub
+    if ($existingNormalized -ne $expectedNormalized) {
+      $shouldResetArtifacts = Confirm-CleanResetForProblem -Slug $slug
+    }
+  }
+
+  if ($shouldResetArtifacts) {
+    Get-ChildItem -Path $artifactDir -Force | Remove-Item -Recurse -Force
+    $resetArtifactsCount += 1
+  } else {
+    $preservedArtifactsCount += 1
+  }
+
+  if ($shouldResetArtifacts) {
+    $solution = Get-RenderedSolutionTemplate `
+      -TemplateContent $solutionTemplateContent `
+      -ProblemTitle $meta.Title `
+      -ProblemDifficulty $meta.Difficulty `
+      -ProblemRelPath $problemRelPath `
+      -LastUpdatedValue $lastUpdated
+    Set-Content -Path $solutionPath -Value $solution
+
+    $reasoning = $reasoningTemplateContent
+    $reasoning = $reasoning -replace "Problem title:", "Problem title: $($meta.Title)"
+    $reasoning = $reasoning -replace "Category:", "Category: DSA"
+    $reasoning = $reasoning -replace "Source file:", "Source file: $problemRelPath"
+    $reasoning = $reasoning -replace "Last-updated:", "Last-updated: $lastUpdated"
+    Set-Content -Path $reasoningPath -Value $reasoning
+
+    $functionName = ConvertTo-FunctionName -Slug $slug
+    $functionNamePascal = ConvertTo-PascalCase -Name $functionName
+    $stub = $stubTemplateContent
+    $stub = $stub.Replace("<PROBLEM_TITLE>", $meta.Title)
+    $stub = $stub.Replace("<CATEGORY>", "DSA")
+    $stub = $stub.Replace("<FUNCTION_NAME>", $functionName)
+    $stub = $stub.Replace("<FUNCTION_NAME_PASCAL>", $functionNamePascal)
+    Set-Content -Path $stubPath -Value $stub
+
+    # Keep implementation reset in sync with clean artifact reset.
+    Set-Content -Path $implementationPath -Value $stub
+    $resetImplementationsCount += 1
+  }
 
   $prompt = "/hubspot-problem-agent $artifactRelPath"
   Set-Content -Path $promptPath -Value $prompt -NoNewline
@@ -164,5 +246,8 @@ foreach ($path in $updatedPrompts) {
 if ($NoClean) {
   Write-Host "Mode: no-clean (existing artifact files preserved except rewritten templates/prompts)."
 } else {
-  Write-Host "Mode: clean-reset (DSA artifact directories reset to template baseline)."
+  Write-Host "Mode: clean-reset (template solutions auto-reset; custom solutions require confirmation)."
+  Write-Host "Artifacts reset: $resetArtifactsCount"
+  Write-Host "Artifacts preserved: $preservedArtifactsCount"
+  Write-Host "Implementations reset: $resetImplementationsCount"
 }

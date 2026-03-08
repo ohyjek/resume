@@ -1,15 +1,15 @@
 /**
  * Teaching Stub (DSA)
  *
- * Problem: Find the Celebrity
+ * Problem: Top K Frequent Elements
  * Category: DSA
  *
  * This scaffold is intentionally problem-specific.
  * Replace placeholder types with concrete ones from the prompt.
  */
 
-export type FindTheCelebrityInput = unknown;
-export type FindTheCelebrityOutput = unknown;
+export type TopKFrequentElementsInput = unknown;
+export type TopKFrequentElementsOutput = unknown;
 
 /**
  * Learning goals
@@ -17,7 +17,7 @@ export type FindTheCelebrityOutput = unknown;
  * 2) Maintain the right invariant while iterating or recursing.
  * 3) Explain complexity and edge-case behavior confidently.
  */
-export function findTheCelebrity(input: FindTheCelebrityInput): FindTheCelebrityOutput {
+export function topKFrequentElements(input: TopKFrequentElementsInput): TopKFrequentElementsOutput {
   // Step 1: Restate assumptions and normalize input if needed.
   // TODO: Document constraints and invalid-input behavior.
 
