@@ -9,31 +9,32 @@
 
 ## Step-by-Step Thought Process
 
-1. Restate prompt: a celebrity is known by everyone and knows nobody; return their index or `-1`.
-2. Key constraint: only the `knows(a, b)` API is available, so relation checks are query-based.
+1. Restate: we need an index `c` such that everyone knows `c`, and `c` knows nobody.
+2. Constraints: only access is via `knows(a, b)` calls; output `-1` if no valid person exists.
 3. Candidate approaches:
-   - brute force: test every person against all others (`O(n^2)`),
-   - elimination + verify: remove impossible candidates in one pass.
-4. Why elimination works:
-   - if `a` knows `b`, then `a` is not a celebrity;
-   - if `a` does not know `b`, then `b` is not a celebrity.
-5. One scan therefore keeps exactly one possible candidate.
-6. A second scan is required because elimination only guarantees "possible", not "valid."
-7. Verification checks both directions for every other person:
-   - candidate knows nobody;
-   - everybody knows candidate.
-8. If all checks pass, return candidate; otherwise return `-1`.
+   - brute force all people and check both conditions for each (`O(n^2)`),
+   - elimination + verification (`O(n)`).
+4. Key observation: comparing two people `a` and `b` lets us discard one immediately:
+   - if `knows(a, b)`, then `a` is not celebrity;
+   - else `b` is not celebrity.
+5. So we can scan once to keep one surviving candidate.
+6. That candidate is only a *possible* celebrity, so we must verify against all others.
+7. Dry run idea:
+   - if there is a true celebrity `k`, elimination can never permanently discard `k`;
+   - non-celebrities are eventually eliminated by some comparison.
+8. Final check confirms both required properties and returns either candidate or `-1`.
 
 ## Decision Log
 
-- Most important insight:
-  Each comparison can eliminate one of the two people immediately.
-- Rejected approach and reason:
-  Full matrix/brute-force scanning was rejected because it over-queries and misses the intended linear-time insight.
-- Potential follow-up optimization:
-  Cache `knows` results if the API cost dominates runtime and memory tradeoff is acceptable.
+- Most important insight: each `knows` comparison removes one candidate from consideration, enabling a linear pass.
+- Rejected approach and reason: brute force was rejected because it does unnecessary repeated checks and is quadratic.
+- Potential follow-up optimization: if `knows` calls are expensive external RPCs, memoize queried pairs to avoid duplicate calls during verification.
 
 ## Interview Narration Script
 
-I would solve this in two passes. First, I eliminate candidates in linear time: keep one candidate and compare them with each person. If the candidate knows someone, they cannot be the celebrity, so I replace them; otherwise the other person is eliminated. After that pass, only one possible celebrity remains. Second, I verify that this person knows no one and everyone else knows them. If any check fails, there is no celebrity, so I return `-1`; otherwise I return that index. This gives `O(n)` time and `O(1)` space.
+“I’ll treat this as a candidate elimination problem. Start with person 0 as candidate, then scan forward.  
+If candidate knows person i, candidate cannot be the celebrity, so replace candidate with i.  
+Otherwise person i cannot be the celebrity, so keep current candidate. After one pass, only one possible celebrity remains.  
+Then I do a full verification pass to ensure this candidate knows nobody and everybody knows them.  
+If any check fails I return -1; otherwise I return that index. This gives O(n) time and O(1) space.”
 

@@ -11,38 +11,32 @@
 ## Final Solution
 
 Use a two-pass strategy:
-1) **Elimination pass**: walk from person `1` to `n - 1` while tracking one candidate `cand`.  
-If `cand` knows `i`, then `cand` cannot be a celebrity, so set `cand = i`.  
-Otherwise `i` cannot be a celebrity and `cand` stays.
-2) **Verification pass**: check every other person `j`:
-   - `cand` must **not** know `j`
-   - `j` **must** know `cand`
-If either condition fails for any `j`, return `-1`; otherwise return `cand`.
+
+1. **Elimination pass**: keep a single `candidate` initialized to `0`.  
+   For each person `i` from `1..n-1`, if `candidate` knows `i`, then `candidate` cannot be the celebrity, so set `candidate = i`.
+2. **Verification pass**: validate the final `candidate` against everyone else:
+   - `candidate` must not know any other person.
+   - every other person must know `candidate`.
+   If either condition fails for any person, return `-1`; otherwise return `candidate`.
+
+This works with the provided `knows(a, b)` API and returns an index or `-1` when no celebrity exists.
 
 ## Why This Works
 
-- Correctness argument:
-  After processing index `i` in the elimination pass, every person in `[0..i]` except `cand` is proven non-celebrity.
-- Key invariant(s):
-  The current `cand` is the only remaining feasible celebrity among processed people.
-- Why edge cases are covered:
-  - `n = 1`: no comparisons are needed, person `0` is valid.
-  - no celebrity exists: verification catches the failure and returns `-1`.
-  - directed relation confusion is avoided by checking both required properties in verification.
+- Correctness argument: in the elimination pass, each comparison removes at least one person from celebrity consideration. If `candidate` knows `i`, `candidate` is disqualified; otherwise `i` is disqualified. After one pass, only one possible celebrity remains.
+- Key invariant(s): after processing people `0..i`, the current `candidate` is the only person in that prefix who has not been disproven.
+- Why edge cases are covered: for `n <= 0`, return `-1`. For `n = 1`, candidate `0` is valid because there is no contradictory relationship to check. If no celebrity exists, the verification pass detects the violation and returns `-1`.
 
 ## Why This Is Appropriate
 
-- Interview constraints fit:
-  Uses exactly the intended `O(n)` query pattern and constant extra memory.
-- Tradeoffs vs alternatives:
-  Brute force checks each person against everyone (`O(n^2)`) and is unnecessary.
-- When to choose a different strategy:
-  If `knows(a, b)` is very expensive and cached answers are allowed, memoization can reduce duplicate API calls at the cost of extra space.
+- Interview constraints fit: this is the canonical O(n) query strategy and improves over brute force O(n^2) candidate checking.
+- Tradeoffs vs alternatives: brute force is simpler to reason about but slower; this approach adds a proof step but stays optimal for query count.
+- When to choose a different strategy: if relationship data is precomputed as a full matrix and `n` is tiny, brute force may be acceptable for clarity, but elimination + verify remains best general-purpose.
 
 ## Complexity
 
-- Time: `O(n)` API checks in elimination plus `O(n)` in verification, overall `O(n)`.
-- Space: `O(1)` auxiliary space.
+- Time: `O(n)` API calls in asymptotic terms (one elimination pass plus one verification pass).
+- Space: `O(1)`.
 
 ## Validation Checklist
 

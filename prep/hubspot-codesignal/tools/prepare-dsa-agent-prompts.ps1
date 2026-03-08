@@ -150,11 +150,8 @@ foreach ($problemFile in $problemFiles) {
   $stub = $stub.Replace("<FUNCTION_NAME_PASCAL>", $functionNamePascal)
   Set-Content -Path $stubPath -Value $stub
 
-  $prompt = @"
-/hubspot-problem-agent
-artifact directory path: $artifactRelPath
-"@
-  Set-Content -Path $promptPath -Value $prompt
+  $prompt = "/hubspot-problem-agent $artifactRelPath"
+  Set-Content -Path $promptPath -Value $prompt -NoNewline
   $updatedPrompts += $promptPath
 }
 
