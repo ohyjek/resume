@@ -24,7 +24,6 @@ Expected files in that folder:
 - `agent-prompt.md`
 - DSA: `teaching-stub.ts`
 - System Design: `teaching-notes.md`
-- run tracking file: `.skill-run-state.json` (create on first run)
 
 ## Default implementation output locations
 
@@ -47,17 +46,12 @@ If user provides a different output path, honor the user's path.
    - If any of those files already has non-template content, stop immediately and report `skipped: already processed (multi-run not supported)`.
    - If required files are missing, stop and report what is missing.
 
-2. Determine run history and increment counter
-   - In the artifact directory, use `.skill-run-state.json` to track executions.
-   - If file does not exist, create it with:
-     - `run_count: 0`
-     - `history: []`
-   - Before authoring, increment `run_count` by 1 and append a history entry with:
-     - `run_number`
-     - `timestamp`
-     - `mode: "artifact-implementer"`
-   - Persist the updated state file.
-   - Do not increment run state when the run is skipped.
+2. Determine execution status from artifact content (no mutable run-state file)
+   - Do not create, read, or update `.skill-run-state.json`.
+   - Decide whether to execute or skip based on current artifact content:
+     - `solution.md`, `reasoning.md`, and teaching artifact all template/empty -> execute.
+     - any of those files contain non-template content -> skip as already processed.
+   - Treat this workflow as idempotent and stateless; execution status is derived from files, not counters.
 
 3. Gather context from input directory
    - Read `agent-prompt.md` first.
@@ -88,9 +82,9 @@ If user provides a different output path, honor the user's path.
 
 7. Finalize
    - Summarize what was updated in artifact files and implementation output.
-   - Report run-tracking info:
-     - current `run_count`
-     - whether this was first run or repeat run
+   - Report execution classification:
+     - `executed: first-pass` (template artifacts were populated)
+     - or `skipped: already processed`
    - If skipped, return a concise skip reason and do not modify artifact or implementation files.
    - Do not run tests and do not add test files unless user explicitly asks.
 
@@ -132,27 +126,13 @@ System Design:
 
 - Update queue/index statuses only if user explicitly requests status mutation in that run.
 
-## Run tracking schema
+## State model (reimplemented)
 
-Store this in `<artifact-dir>/.skill-run-state.json`:
+Execution state is now derived from artifact file contents only:
 
-```json
-{
-  "run_count": 2,
-  "history": [
-    {
-      "run_number": 1,
-      "timestamp": "2026-03-08T03:00:00Z",
-      "mode": "artifact-implementer"
-    },
-    {
-      "run_number": 2,
-      "timestamp": "2026-03-08T03:10:00Z",
-      "mode": "artifact-implementer"
-    }
-  ]
-}
-```
+- Template/empty artifacts => not yet processed, safe to execute.
+- Non-template artifacts => already processed, skip by default.
+- No per-run mutable JSON bookkeeping.
 
 ## Previous guidance retained
 

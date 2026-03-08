@@ -174,6 +174,7 @@ foreach ($problemFile in $problemFiles) {
   $reasoningPath = Join-Path $artifactDir "reasoning.md"
   $stubPath = Join-Path $artifactDir "teaching-stub.ts"
   $promptPath = Join-Path $artifactDir "agent-prompt.md"
+  $legacyRunStatePath = Join-Path $artifactDir ".skill-run-state.json"
 
   $lastUpdated = Get-Date -Format "yyyy-MM-dd"
   $shouldResetArtifacts = -not $NoClean
@@ -200,6 +201,10 @@ foreach ($problemFile in $problemFiles) {
     $resetArtifactsCount += 1
   } else {
     $preservedArtifactsCount += 1
+    # Legacy migration: this state file is no longer used by the skill workflow.
+    if (Test-Path $legacyRunStatePath) {
+      Remove-Item -Path $legacyRunStatePath -Force
+    }
   }
 
   if ($shouldResetArtifacts) {

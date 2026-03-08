@@ -5,43 +5,47 @@
  * Category: DSA
  *
  * This scaffold is intentionally problem-specific.
- * Replace placeholder types with concrete ones from the prompt.
+ * Focus: min-heap based k-way merge over linked-list heads.
  */
 
-export type MergeKSortedListsInput = unknown;
-export type MergeKSortedListsOutput = unknown;
+export interface ListNode {
+  val: number;
+  next: ListNode | null;
+}
+
+export type MergeKSortedListsInput = Array<ListNode | null>;
+export type MergeKSortedListsOutput = ListNode | null;
 
 /**
  * Learning goals
- * 1) Identify the core pattern used by this problem.
- * 2) Maintain the right invariant while iterating or recursing.
- * 3) Explain complexity and edge-case behavior confidently.
+ * 1) Explain why this is a k-way merge problem.
+ * 2) Maintain the frontier invariant for the heap.
+ * 3) Tie each line of logic to O(N log k) / O(k).
  */
-export function mergeKSortedLists(input: MergeKSortedListsInput): MergeKSortedListsOutput {
-  // Step 1: Restate assumptions and normalize input if needed.
-  // TODO: Document constraints and invalid-input behavior.
+export function mergeKSortedLists(lists: MergeKSortedListsInput): MergeKSortedListsOutput {
+  // Step 1: Filter out null list heads.
+  // TODO: initialize a min-heap with all non-null heads.
 
-  // Step 2: Initialize structures for the chosen pattern.
-  // TODO: Explain why each structure is required.
+  // Step 2: Prepare a sentinel node and tail pointer for output stitching.
+  // TODO: dummy node avoids a special-case for first append.
 
-  // Step 3: Implement core loop/recursion.
-  // TODO: Keep the main invariant true after each iteration.
+  // Step 3: While heap is not empty:
+  //  - pop the minimum node
+  //  - append it to output
+  //  - if popped.next exists, push popped.next into heap
 
-  // Step 4: Handle edge cases explicitly.
-  // TODO: Cover empty input, tiny input, duplicates, and bounds.
+  // Step 4: Return dummy.next.
+  // TODO: verify behavior for empty input and duplicate values.
 
-  // Step 5: Return in the exact expected format.
-  // TODO: Verify output semantics against prompt examples.
-
-  throw new Error("Not implemented.");
+  throw new Error("Implement with a min-heap over list heads.");
 }
 
 /**
  * Suggested tests
- * - Canonical sample case
- * - Smallest valid input
- * - Duplicate-heavy case
- * - Constraint-limit case
- * - Tricky edge case discussed in reasoning.md
+ * - Empty array => null
+ * - [null, null] => null
+ * - Single list is returned unchanged in order
+ * - Multiple lists with interleaving values
+ * - Duplicate-heavy values across different lists
  */
 

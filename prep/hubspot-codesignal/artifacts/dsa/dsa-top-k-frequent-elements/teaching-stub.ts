@@ -5,11 +5,15 @@
  * Category: DSA
  *
  * This scaffold is intentionally problem-specific.
- * Replace placeholder types with concrete ones from the prompt.
+ * It demonstrates the frequency-map + size-k min-heap approach.
  */
 
-export type TopKFrequentElementsInput = unknown;
-export type TopKFrequentElementsOutput = unknown;
+export type TopKFrequentElementsInput = {
+  nums: number[];
+  k: number;
+};
+
+export type TopKFrequentElementsOutput = number[];
 
 /**
  * Learning goals
@@ -18,22 +22,25 @@ export type TopKFrequentElementsOutput = unknown;
  * 3) Explain complexity and edge-case behavior confidently.
  */
 export function topKFrequentElements(input: TopKFrequentElementsInput): TopKFrequentElementsOutput {
-  // Step 1: Restate assumptions and normalize input if needed.
-  // TODO: Document constraints and invalid-input behavior.
+  const { nums, k } = input;
+  if (k <= 0 || nums.length === 0) {
+    return [];
+  }
 
-  // Step 2: Initialize structures for the chosen pattern.
-  // TODO: Explain why each structure is required.
+  const frequency = new Map<number, number>();
+  for (const value of nums) {
+    frequency.set(value, (frequency.get(value) ?? 0) + 1);
+  }
 
-  // Step 3: Implement core loop/recursion.
-  // TODO: Keep the main invariant true after each iteration.
+  const heap: Array<[value: number, count: number]> = [];
+  for (const [value, count] of frequency.entries()) {
+    pushMinHeap(heap, [value, count]);
+    if (heap.length > k) {
+      popMinHeap(heap);
+    }
+  }
 
-  // Step 4: Handle edge cases explicitly.
-  // TODO: Cover empty input, tiny input, duplicates, and bounds.
-
-  // Step 5: Return in the exact expected format.
-  // TODO: Verify output semantics against prompt examples.
-
-  throw new Error("Not implemented.");
+  return heap.map(([value]) => value);
 }
 
 /**
@@ -44,4 +51,56 @@ export function topKFrequentElements(input: TopKFrequentElementsInput): TopKFreq
  * - Constraint-limit case
  * - Tricky edge case discussed in reasoning.md
  */
+
+function pushMinHeap(heap: Array<[number, number]>, entry: [number, number]): void {
+  heap.push(entry);
+  siftUp(heap, heap.length - 1);
+}
+
+function popMinHeap(heap: Array<[number, number]>): [number, number] | undefined {
+  if (heap.length === 0) {
+    return undefined;
+  }
+  const root = heap[0];
+  const tail = heap.pop();
+  if (heap.length > 0 && tail) {
+    heap[0] = tail;
+    siftDown(heap, 0);
+  }
+  return root;
+}
+
+function siftUp(heap: Array<[number, number]>, index: number): void {
+  let child = index;
+  while (child > 0) {
+    const parent = Math.floor((child - 1) / 2);
+    if (heap[parent][1] <= heap[child][1]) {
+      break;
+    }
+    [heap[parent], heap[child]] = [heap[child], heap[parent]];
+    child = parent;
+  }
+}
+
+function siftDown(heap: Array<[number, number]>, index: number): void {
+  let parent = index;
+  while (true) {
+    const left = parent * 2 + 1;
+    const right = parent * 2 + 2;
+    let smallest = parent;
+
+    if (left < heap.length && heap[left][1] < heap[smallest][1]) {
+      smallest = left;
+    }
+    if (right < heap.length && heap[right][1] < heap[smallest][1]) {
+      smallest = right;
+    }
+    if (smallest === parent) {
+      break;
+    }
+
+    [heap[parent], heap[smallest]] = [heap[smallest], heap[parent]];
+    parent = smallest;
+  }
+}
 

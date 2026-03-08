@@ -1,47 +1,34 @@
-/**
- * Teaching Stub (DSA)
- *
- * Problem: Merge Sorted Array
- * Category: DSA
- *
- * This scaffold is intentionally problem-specific.
- * Replace placeholder types with concrete ones from the prompt.
- */
+export type MergeSortedArrayInput = {
+  nums1: number[];
+  m: number;
+  nums2: number[];
+  n: number;
+};
 
-export type MergeSortedArrayInput = unknown;
-export type MergeSortedArrayOutput = unknown;
+export type MergeSortedArrayOutput = number[];
 
 /**
- * Learning goals
- * 1) Identify the core pattern used by this problem.
- * 2) Maintain the right invariant while iterating or recursing.
- * 3) Explain complexity and edge-case behavior confidently.
+ * Merges nums2 into nums1 in place and returns nums1.
+ * Assumes nums1 has length m + n and enough trailing capacity.
  */
 export function mergeSortedArray(input: MergeSortedArrayInput): MergeSortedArrayOutput {
-  // Step 1: Restate assumptions and normalize input if needed.
-  // TODO: Document constraints and invalid-input behavior.
+  const { nums1, m, nums2, n } = input;
 
-  // Step 2: Initialize structures for the chosen pattern.
-  // TODO: Explain why each structure is required.
+  let i = m - 1;
+  let j = n - 1;
+  let write = m + n - 1;
 
-  // Step 3: Implement core loop/recursion.
-  // TODO: Keep the main invariant true after each iteration.
+  while (j >= 0) {
+    if (i >= 0 && nums1[i] > nums2[j]) {
+      nums1[write] = nums1[i];
+      i -= 1;
+    } else {
+      nums1[write] = nums2[j];
+      j -= 1;
+    }
+    write -= 1;
+  }
 
-  // Step 4: Handle edge cases explicitly.
-  // TODO: Cover empty input, tiny input, duplicates, and bounds.
-
-  // Step 5: Return in the exact expected format.
-  // TODO: Verify output semantics against prompt examples.
-
-  throw new Error("Not implemented.");
+  return nums1;
 }
-
-/**
- * Suggested tests
- * - Canonical sample case
- * - Smallest valid input
- * - Duplicate-heavy case
- * - Constraint-limit case
- * - Tricky edge case discussed in reasoning.md
- */
 

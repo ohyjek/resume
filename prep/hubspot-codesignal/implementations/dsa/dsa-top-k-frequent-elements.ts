@@ -1,47 +1,105 @@
 /**
- * Teaching Stub (DSA)
+ * Top K Frequent Elements
  *
- * Problem: Top K Frequent Elements
- * Category: DSA
+ * Baseline approach:
+ * 1) Count occurrences with a hash map.
+ * 2) Keep a size-k min-heap by frequency.
  *
- * This scaffold is intentionally problem-specific.
- * Replace placeholder types with concrete ones from the prompt.
+ * Time: O(n + u log k), where u is unique values (u <= n).
+ * Space: O(u + k).
  */
 
-export type TopKFrequentElementsInput = unknown;
-export type TopKFrequentElementsOutput = unknown;
+export type TopKFrequentElementsInput = {
+  nums: number[];
+  k: number;
+};
 
-/**
- * Learning goals
- * 1) Identify the core pattern used by this problem.
- * 2) Maintain the right invariant while iterating or recursing.
- * 3) Explain complexity and edge-case behavior confidently.
- */
-export function topKFrequentElements(input: TopKFrequentElementsInput): TopKFrequentElementsOutput {
-  // Step 1: Restate assumptions and normalize input if needed.
-  // TODO: Document constraints and invalid-input behavior.
+type FrequencyEntry = [value: number, count: number];
 
-  // Step 2: Initialize structures for the chosen pattern.
-  // TODO: Explain why each structure is required.
+export function topKFrequentElements(input: TopKFrequentElementsInput): number[] {
+  const { nums, k } = input;
+  if (k <= 0 || nums.length === 0) {
+    return [];
+  }
 
-  // Step 3: Implement core loop/recursion.
-  // TODO: Keep the main invariant true after each iteration.
+  const frequency = new Map<number, number>();
+  for (const value of nums) {
+    frequency.set(value, (frequency.get(value) ?? 0) + 1);
+  }
 
-  // Step 4: Handle edge cases explicitly.
-  // TODO: Cover empty input, tiny input, duplicates, and bounds.
+  const heap = new MinHeap();
+  for (const [value, count] of frequency.entries()) {
+    heap.push([value, count]);
+    if (heap.size() > k) {
+      heap.pop();
+    }
+  }
 
-  // Step 5: Return in the exact expected format.
-  // TODO: Verify output semantics against prompt examples.
-
-  throw new Error("Not implemented.");
+  return heap.values().map(([value]) => value);
 }
 
-/**
- * Suggested tests
- * - Canonical sample case
- * - Smallest valid input
- * - Duplicate-heavy case
- * - Constraint-limit case
- * - Tricky edge case discussed in reasoning.md
- */
+class MinHeap {
+  private readonly data: FrequencyEntry[] = [];
+
+  size(): number {
+    return this.data.length;
+  }
+
+  values(): FrequencyEntry[] {
+    return this.data;
+  }
+
+  push(entry: FrequencyEntry): void {
+    this.data.push(entry);
+    this.siftUp(this.data.length - 1);
+  }
+
+  pop(): FrequencyEntry | undefined {
+    if (this.data.length === 0) {
+      return undefined;
+    }
+
+    const root = this.data[0];
+    const tail = this.data.pop();
+    if (this.data.length > 0 && tail) {
+      this.data[0] = tail;
+      this.siftDown(0);
+    }
+    return root;
+  }
+
+  private siftUp(index: number): void {
+    let child = index;
+    while (child > 0) {
+      const parent = Math.floor((child - 1) / 2);
+      if (this.data[parent][1] <= this.data[child][1]) {
+        break;
+      }
+      [this.data[parent], this.data[child]] = [this.data[child], this.data[parent]];
+      child = parent;
+    }
+  }
+
+  private siftDown(index: number): void {
+    let parent = index;
+    while (true) {
+      const left = parent * 2 + 1;
+      const right = parent * 2 + 2;
+      let smallest = parent;
+
+      if (left < this.data.length && this.data[left][1] < this.data[smallest][1]) {
+        smallest = left;
+      }
+      if (right < this.data.length && this.data[right][1] < this.data[smallest][1]) {
+        smallest = right;
+      }
+      if (smallest === parent) {
+        break;
+      }
+
+      [this.data[parent], this.data[smallest]] = [this.data[smallest], this.data[parent]];
+      parent = smallest;
+    }
+  }
+}
 

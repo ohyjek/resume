@@ -1,47 +1,42 @@
-/**
- * Teaching Stub (DSA)
- *
- * Problem: Meeting Rooms II
- * Category: DSA
- *
- * This scaffold is intentionally problem-specific.
- * Replace placeholder types with concrete ones from the prompt.
- */
-
-export type MeetingRoomsIiInput = unknown;
-export type MeetingRoomsIiOutput = unknown;
+export type MeetingInterval = [start: number, end: number];
+export type MeetingRoomsIiInput = MeetingInterval[];
+export type MeetingRoomsIiOutput = number;
 
 /**
  * Learning goals
- * 1) Identify the core pattern used by this problem.
- * 2) Maintain the right invariant while iterating or recursing.
- * 3) Explain complexity and edge-case behavior confidently.
+ * 1) Reframe interval scheduling as max-overlap counting.
+ * 2) Keep pointer invariants clear in a sweep-line pass.
+ * 3) Defend boundary behavior when meetings touch.
  */
-export function meetingRoomsIi(input: MeetingRoomsIiInput): MeetingRoomsIiOutput {
-  // Step 1: Restate assumptions and normalize input if needed.
-  // TODO: Document constraints and invalid-input behavior.
+export function meetingRoomsIi(intervals: MeetingRoomsIiInput): MeetingRoomsIiOutput {
+  if (intervals.length === 0) {
+    return 0;
+  }
 
-  // Step 2: Initialize structures for the chosen pattern.
-  // TODO: Explain why each structure is required.
+  const starts = intervals.map(([start]) => start).sort((a, b) => a - b);
+  const ends = intervals.map(([, end]) => end).sort((a, b) => a - b);
 
-  // Step 3: Implement core loop/recursion.
-  // TODO: Keep the main invariant true after each iteration.
+  let roomsInUse = 0;
+  let maxRooms = 0;
+  let endPtr = 0;
 
-  // Step 4: Handle edge cases explicitly.
-  // TODO: Cover empty input, tiny input, duplicates, and bounds.
+  for (let startPtr = 0; startPtr < starts.length; startPtr += 1) {
+    if (starts[startPtr] < ends[endPtr]) {
+      roomsInUse += 1;
+      maxRooms = Math.max(maxRooms, roomsInUse);
+    } else {
+      endPtr += 1;
+    }
+  }
 
-  // Step 5: Return in the exact expected format.
-  // TODO: Verify output semantics against prompt examples.
-
-  throw new Error("Not implemented.");
+  return maxRooms;
 }
 
 /**
  * Suggested tests
- * - Canonical sample case
- * - Smallest valid input
- * - Duplicate-heavy case
- * - Constraint-limit case
- * - Tricky edge case discussed in reasoning.md
+ * - [[0,30],[5,10],[15,20]] => 2
+ * - [] => 0
+ * - [[1,2],[2,3],[3,4]] => 1
+ * - [[1,10],[2,9],[3,8]] => 3
  */
 

@@ -4,36 +4,39 @@
  * Problem: Two Sum
  * Category: DSA
  *
- * This scaffold is intentionally problem-specific.
- * Replace placeholder types with concrete ones from the prompt.
+ * One-pass hash map approach:
+ * check complement before storing the current value.
  */
 
-export type TwoSumInput = unknown;
-export type TwoSumOutput = unknown;
+export interface TwoSumInput {
+  nums: number[];
+  target: number;
+}
+
+export type TwoSumOutput = [number, number];
 
 /**
  * Learning goals
- * 1) Identify the core pattern used by this problem.
- * 2) Maintain the right invariant while iterating or recursing.
- * 3) Explain complexity and edge-case behavior confidently.
+ * 1) Use complement lookup with a hash map.
+ * 2) Keep the map invariant: only prior indices are stored.
+ * 3) Explain why duplicates and negatives still work.
  */
-export function twoSum(input: TwoSumInput): TwoSumOutput {
-  // Step 1: Restate assumptions and normalize input if needed.
-  // TODO: Document constraints and invalid-input behavior.
+export function twoSum({ nums, target }: TwoSumInput): TwoSumOutput {
+  const indexByValue = new Map<number, number>();
 
-  // Step 2: Initialize structures for the chosen pattern.
-  // TODO: Explain why each structure is required.
+  for (let i = 0; i < nums.length; i += 1) {
+    const value = nums[i];
+    const complement = target - value;
+    const complementIndex = indexByValue.get(complement);
 
-  // Step 3: Implement core loop/recursion.
-  // TODO: Keep the main invariant true after each iteration.
+    if (complementIndex !== undefined) {
+      return [complementIndex, i];
+    }
 
-  // Step 4: Handle edge cases explicitly.
-  // TODO: Cover empty input, tiny input, duplicates, and bounds.
+    indexByValue.set(value, i);
+  }
 
-  // Step 5: Return in the exact expected format.
-  // TODO: Verify output semantics against prompt examples.
-
-  throw new Error("Not implemented.");
+  throw new Error("No two-sum pair found for the provided input.");
 }
 
 /**
@@ -41,7 +44,7 @@ export function twoSum(input: TwoSumInput): TwoSumOutput {
  * - Canonical sample case
  * - Smallest valid input
  * - Duplicate-heavy case
- * - Constraint-limit case
- * - Tricky edge case discussed in reasoning.md
+ * - Negative numbers
+ * - No-solution defensive behavior
  */
 

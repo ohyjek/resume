@@ -1,47 +1,65 @@
 /**
- * Teaching Stub (DSA)
+ * Maximum Number of Occurrences of a Substring
  *
- * Problem: Maximum Number of Occurrences of a Substring
- * Category: DSA
- *
- * This scaffold is intentionally problem-specific.
- * Replace placeholder types with concrete ones from the prompt.
+ * Counts valid substrings using a fixed-size sliding window at minSize.
  */
 
-export type MaximumNumberOfOccurrencesOfASubstringInput = unknown;
-export type MaximumNumberOfOccurrencesOfASubstringOutput = unknown;
+export type MaximumNumberOfOccurrencesOfASubstringInput = {
+  s: string;
+  maxLetters: number;
+  minSize: number;
+  maxSize: number;
+};
+
+export type MaximumNumberOfOccurrencesOfASubstringOutput = number;
 
 /**
- * Learning goals
- * 1) Identify the core pattern used by this problem.
- * 2) Maintain the right invariant while iterating or recursing.
- * 3) Explain complexity and edge-case behavior confidently.
+ * Why minSize is enough:
+ * Any longer valid substring contains a minSize prefix/sub-window.
+ * The longer substring cannot appear more often than that minSize window.
  */
 export function maximumNumberOfOccurrencesOfASubstring(input: MaximumNumberOfOccurrencesOfASubstringInput): MaximumNumberOfOccurrencesOfASubstringOutput {
-  // Step 1: Restate assumptions and normalize input if needed.
-  // TODO: Document constraints and invalid-input behavior.
+  const { s, maxLetters, minSize } = input;
 
-  // Step 2: Initialize structures for the chosen pattern.
-  // TODO: Explain why each structure is required.
+  if (minSize <= 0 || s.length < minSize || maxLetters <= 0) {
+    return 0;
+  }
 
-  // Step 3: Implement core loop/recursion.
-  // TODO: Keep the main invariant true after each iteration.
+  const charCounts = new Map<string, number>();
+  const substringCounts = new Map<string, number>();
+  let left = 0;
+  let distinctCount = 0;
+  let best = 0;
 
-  // Step 4: Handle edge cases explicitly.
-  // TODO: Cover empty input, tiny input, duplicates, and bounds.
+  for (let right = 0; right < s.length; right += 1) {
+    const addChar = s[right];
+    const priorAddCount = charCounts.get(addChar) ?? 0;
+    if (priorAddCount === 0) {
+      distinctCount += 1;
+    }
+    charCounts.set(addChar, priorAddCount + 1);
 
-  // Step 5: Return in the exact expected format.
-  // TODO: Verify output semantics against prompt examples.
+    while (right - left + 1 > minSize) {
+      const removeChar = s[left];
+      const remaining = (charCounts.get(removeChar) ?? 0) - 1;
+      if (remaining === 0) {
+        charCounts.delete(removeChar);
+        distinctCount -= 1;
+      } else {
+        charCounts.set(removeChar, remaining);
+      }
+      left += 1;
+    }
 
-  throw new Error("Not implemented.");
+    if (right - left + 1 === minSize && distinctCount <= maxLetters) {
+      const window = s.slice(left, right + 1);
+      const nextCount = (substringCounts.get(window) ?? 0) + 1;
+      substringCounts.set(window, nextCount);
+      if (nextCount > best) {
+        best = nextCount;
+      }
+    }
+  }
+
+  return best;
 }
-
-/**
- * Suggested tests
- * - Canonical sample case
- * - Smallest valid input
- * - Duplicate-heavy case
- * - Constraint-limit case
- * - Tricky edge case discussed in reasoning.md
- */
-

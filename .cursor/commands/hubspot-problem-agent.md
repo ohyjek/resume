@@ -29,3 +29,4 @@ Output requirements
   3. files updated in artifact folder,
   4. implementation output path,
   5. concise summary of solution approach.
+  6. execution classification (`first-pass` or `already-processed`) derived from artifact content; do not use `.skill-run-state.json`.

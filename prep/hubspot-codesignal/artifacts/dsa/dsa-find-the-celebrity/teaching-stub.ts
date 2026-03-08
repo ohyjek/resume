@@ -8,8 +8,11 @@
  * Replace placeholder types with concrete ones from the prompt.
  */
 
-export type FindTheCelebrityInput = unknown;
-export type FindTheCelebrityOutput = unknown;
+export interface FindTheCelebrityInput {
+  n: number;
+  knows: (a: number, b: number) => boolean;
+}
+export type FindTheCelebrityOutput = number;
 
 /**
  * Learning goals
@@ -18,22 +21,33 @@ export type FindTheCelebrityOutput = unknown;
  * 3) Explain complexity and edge-case behavior confidently.
  */
 export function findTheCelebrity(input: FindTheCelebrityInput): FindTheCelebrityOutput {
-  // Step 1: Restate assumptions and normalize input if needed.
-  // TODO: Document constraints and invalid-input behavior.
+  const { n, knows } = input;
+  if (n <= 0) {
+    return -1;
+  }
 
-  // Step 2: Initialize structures for the chosen pattern.
-  // TODO: Explain why each structure is required.
+  // Elimination invariant:
+  // after scanning person i, all scanned non-candidates are disqualified.
+  let candidate = 0;
+  for (let person = 1; person < n; person += 1) {
+    if (knows(candidate, person)) {
+      candidate = person;
+    }
+  }
 
-  // Step 3: Implement core loop/recursion.
-  // TODO: Keep the main invariant true after each iteration.
+  // Verification is required because elimination leaves a possible candidate,
+  // not a guaranteed one.
+  for (let person = 0; person < n; person += 1) {
+    if (person === candidate) {
+      continue;
+    }
 
-  // Step 4: Handle edge cases explicitly.
-  // TODO: Cover empty input, tiny input, duplicates, and bounds.
+    if (knows(candidate, person) || !knows(person, candidate)) {
+      return -1;
+    }
+  }
 
-  // Step 5: Return in the exact expected format.
-  // TODO: Verify output semantics against prompt examples.
-
-  throw new Error("Not implemented.");
+  return candidate;
 }
 
 /**

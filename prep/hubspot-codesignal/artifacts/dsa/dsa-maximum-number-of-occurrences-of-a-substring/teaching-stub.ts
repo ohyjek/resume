@@ -4,12 +4,19 @@
  * Problem: Maximum Number of Occurrences of a Substring
  * Category: DSA
  *
- * This scaffold is intentionally problem-specific.
- * Replace placeholder types with concrete ones from the prompt.
+ * Core idea:
+ * - Only windows of size minSize need to be counted.
+ * - Track distinct character count with a sliding window.
  */
 
-export type MaximumNumberOfOccurrencesOfASubstringInput = unknown;
-export type MaximumNumberOfOccurrencesOfASubstringOutput = unknown;
+export type MaximumNumberOfOccurrencesOfASubstringInput = {
+  s: string;
+  maxLetters: number;
+  minSize: number;
+  maxSize: number;
+};
+
+export type MaximumNumberOfOccurrencesOfASubstringOutput = number;
 
 /**
  * Learning goals
@@ -18,30 +25,56 @@ export type MaximumNumberOfOccurrencesOfASubstringOutput = unknown;
  * 3) Explain complexity and edge-case behavior confidently.
  */
 export function maximumNumberOfOccurrencesOfASubstring(input: MaximumNumberOfOccurrencesOfASubstringInput): MaximumNumberOfOccurrencesOfASubstringOutput {
-  // Step 1: Restate assumptions and normalize input if needed.
-  // TODO: Document constraints and invalid-input behavior.
+  const { s, maxLetters, minSize } = input;
 
-  // Step 2: Initialize structures for the chosen pattern.
-  // TODO: Explain why each structure is required.
+  if (minSize <= 0 || s.length < minSize || maxLetters <= 0) {
+    return 0;
+  }
 
-  // Step 3: Implement core loop/recursion.
-  // TODO: Keep the main invariant true after each iteration.
+  const charCounts = new Map<string, number>();
+  const substringCounts = new Map<string, number>();
+  let distinctCount = 0;
+  let left = 0;
+  let best = 0;
 
-  // Step 4: Handle edge cases explicitly.
-  // TODO: Cover empty input, tiny input, duplicates, and bounds.
+  for (let right = 0; right < s.length; right += 1) {
+    const added = s[right];
+    const prevAddedCount = charCounts.get(added) ?? 0;
+    if (prevAddedCount === 0) {
+      distinctCount += 1;
+    }
+    charCounts.set(added, prevAddedCount + 1);
 
-  // Step 5: Return in the exact expected format.
-  // TODO: Verify output semantics against prompt examples.
+    while (right - left + 1 > minSize) {
+      const removed = s[left];
+      const removedCount = (charCounts.get(removed) ?? 0) - 1;
+      if (removedCount === 0) {
+        charCounts.delete(removed);
+        distinctCount -= 1;
+      } else {
+        charCounts.set(removed, removedCount);
+      }
+      left += 1;
+    }
 
-  throw new Error("Not implemented.");
+    if (right - left + 1 === minSize && distinctCount <= maxLetters) {
+      const window = s.slice(left, right + 1);
+      const nextCount = (substringCounts.get(window) ?? 0) + 1;
+      substringCounts.set(window, nextCount);
+      if (nextCount > best) {
+        best = nextCount;
+      }
+    }
+  }
+
+  return best;
 }
 
 /**
  * Suggested tests
- * - Canonical sample case
- * - Smallest valid input
- * - Duplicate-heavy case
- * - Constraint-limit case
- * - Tricky edge case discussed in reasoning.md
+ * - s = "aababcaab", maxLetters = 2, minSize = 3, maxSize = 4 => 2
+ * - s = "aaaa", maxLetters = 1, minSize = 3, maxSize = 3 => 2
+ * - s = "abcde", maxLetters = 2, minSize = 3, maxSize = 3 => 0
+ * - s shorter than minSize => 0
  */
 

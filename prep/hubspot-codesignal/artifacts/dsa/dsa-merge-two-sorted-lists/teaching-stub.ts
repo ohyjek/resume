@@ -4,12 +4,19 @@
  * Problem: Merge Two Sorted Lists
  * Category: DSA
  *
- * This scaffold is intentionally problem-specific.
- * Replace placeholder types with concrete ones from the prompt.
+ * Iterative baseline: merge with a dummy head.
  */
+export type ListNode = {
+  val: number;
+  next: ListNode | null;
+};
 
-export type MergeTwoSortedListsInput = unknown;
-export type MergeTwoSortedListsOutput = unknown;
+export type MergeTwoSortedListsInput = {
+  list1: ListNode | null;
+  list2: ListNode | null;
+};
+
+export type MergeTwoSortedListsOutput = ListNode | null;
 
 /**
  * Learning goals
@@ -18,30 +25,36 @@ export type MergeTwoSortedListsOutput = unknown;
  * 3) Explain complexity and edge-case behavior confidently.
  */
 export function mergeTwoSortedLists(input: MergeTwoSortedListsInput): MergeTwoSortedListsOutput {
-  // Step 1: Restate assumptions and normalize input if needed.
-  // TODO: Document constraints and invalid-input behavior.
+  let { list1, list2 } = input;
 
-  // Step 2: Initialize structures for the chosen pattern.
-  // TODO: Explain why each structure is required.
+  // Dummy head avoids special-case logic for the first appended node.
+  const dummy: ListNode = { val: 0, next: null };
+  let tail = dummy;
 
-  // Step 3: Implement core loop/recursion.
-  // TODO: Keep the main invariant true after each iteration.
+  // Invariant: dummy.next..tail is sorted and contains all consumed nodes.
+  while (list1 !== null && list2 !== null) {
+    if (list1.val <= list2.val) {
+      tail.next = list1;
+      list1 = list1.next;
+    } else {
+      tail.next = list2;
+      list2 = list2.next;
+    }
+    tail = tail.next;
+  }
 
-  // Step 4: Handle edge cases explicitly.
-  // TODO: Cover empty input, tiny input, duplicates, and bounds.
+  // At most one list remains; it is already sorted.
+  tail.next = list1 ?? list2;
 
-  // Step 5: Return in the exact expected format.
-  // TODO: Verify output semantics against prompt examples.
-
-  throw new Error("Not implemented.");
+  return dummy.next;
 }
 
 /**
  * Suggested tests
  * - Canonical sample case
- * - Smallest valid input
+ * - One empty, one non-empty
  * - Duplicate-heavy case
- * - Constraint-limit case
- * - Tricky edge case discussed in reasoning.md
+ * - One list exhausted much earlier
+ * - Both inputs empty
  */
 
